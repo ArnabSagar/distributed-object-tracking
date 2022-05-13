@@ -1,0 +1,14 @@
+{
+  "name": "distributed-object-tracking-with-lidar",
+  "version": "1.0.0",
+  "description": "App made with NODEJS, TFJS, DCP",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Arnab Sagar",
+  "license": "ISC",
+  "dependencies": {
+    "dcp-client": "^4.2.5"
+  }
+}
