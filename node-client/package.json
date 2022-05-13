@@ -9,6 +9,8 @@
   "author": "Arnab Sagar",
   "license": "ISC",
   "dependencies": {
-    "dcp-client": "^4.2.5"
+    "client": "0.0.1",
+    "dcp-client": "^4.2.5",
+    "dcp-worker": "^3.2.5"
   }
 }

@@ -7,20 +7,10 @@
  * Test app using DCP.
  */
 
- async function main() {
+async function main() {
   const compute = require('dcp/compute');
   const wallet = require('dcp/wallet');
-  
-  // Rest of the code will go in the following sections:    
-
-  /* INPUT SET */
-  // const inputSet = ['a', 'b', 'a','a','a','a','a','t','e','y'];
-  /* WORK FUNCTION */
-  // async function workFunction(letter) {
-  //   progress();
-  //   return letter;
-  // }
-    
+      
   /* COMPUTE FOR */
   const job = compute.for(
     ["a","b", "c", "d"], 
@@ -31,7 +21,7 @@
   );
 
 
-  job.public.name = 'test job - arnab';
+  job.public.name = 'Test job - arnab';
 
   const ks = await wallet.get(); /* usually loads ~/.dcp/default.keystore */
   job.setPaymentAccountKeystore(ks);
@@ -55,7 +45,7 @@
   // job.requirements.strict = true;
   // job.requirements.discrete = true;
   
-  const resultSet = await job.exec(0.1);
+  const resultSet = await job.localExec();
 
   results = Array.from(resultSet);
   console.log(results.toString());
