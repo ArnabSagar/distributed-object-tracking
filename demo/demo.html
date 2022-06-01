@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script src="https://scheduler.distributed.computer/dcp-client/dcp-client.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>aiSight System Demonstration</title>
+</head>
+<style>
+body {
+  background-color: #D0CFCF;
+  font-family: "Lucida Console", Monaco, monospace;
+}
+input {
+  text-align: left;
+}
+.button {
+  display: inline-block;
+  cursor: pointer;
+  padding: 10px;
+  margin: 20px;
+  background: #555;
+  border: 2px solid #FFF;
+  color: #FFF;
+  font-family: "Lucida Console", Monaco, monospace;
+}
+.button:hover {
+  background: #FFF;
+  border: 2px solid #555;
+  color: #555
+}
+.button-off {
+  display: inline-block;
+  padding: 10px;
+  margin: 20px;
+  background: #CCC;
+  border: 2px solid #555;
+  color: #555;
+  font-family: "Lucida Console", Monaco, monospace;
+}
+.count-box {
+  display: inline-block;
+  padding: 10px;
+  margin: 10px;
+  background: #00AAFF;
+  border: 2px solid #FFF;
+  color: #FFF;
+  font-family: "Lucida Console", Monaco, monospace;
+}
+.image-label {
+  display: none;
+  font-size: 30px;
+  line-height: 600px;
+  left: 0;
+  right: 0;
+  position: absolute;
+  color: #FFF;
+  z-index: 4;
+}
+.loading-bar {
+  background-color: #E6E6E6;
+  margin: 20px;
+}
+.loading-label {
+  left: 0;
+  right: 0;
+  position: absolute;
+  line-height: 30px;
+  color: #054271;
+}
+.loading-progress {
+  width: 0%;
+  height: 30px;
+  background-color: #00AAFF;
+}
+#app-container {
+  width: 1000px;
+  margin: 40px auto;
+  text-align: center;
+}
+#boxes-layer {
+  padding: 0;
+  margin: auto;
+  display: block;
+  opacity: 1;
+  z-index: 2;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+#canvas-area {
+  position: relative;
+  width: 800px;
+  height: 600px;
+}
+#control-area {
+  background-color: #054271;
+  color: #FFFFFF;
+  padding: 20px;
+}
+#display-area {
+  border: 2px solid #054271;
+  width: 800px;
+  margin: 40px auto;
+  text-align: center;
+}
+#display-layer {
+  padding: 0;
+  margin: auto;
+  display: block;
+  opacity: 1;
+  z-index: 1;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+#display-layer.highlight {
+  opacity: 0.5;
+}
+#drop-area {
+  background: #FFF;
+  max-width: 100%;
+  height: 600px;
+}
+#drop-area.highlight {
+  background-color: #00AAFF;
+}
+#file-input {
+  display: none;
+}
+#gallery {
+  margin-top: 10px;
+}
+#gallery img {
+  height: 150px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+#logo-layer {
+  z-index: 0;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+#logo-layer.highlight {
+  opacity: 0;
+}
+#output-area {
+  width: 150px;
+  float: left;
+}
+#output-sidebar {
+  background: #FFF;
+  border: 2px solid #054271;
+  height: 150px;
+}
+</style>
+<body>
+
+<div id="display-area">
+  <div class="image-label" id="compute-label">COMPUTING</div>
+  <div class="image-label" id="convert-label">CONVERTING</div>
+  <div id="drop-area">
+    <div id="canvas-area">
+      <canvas id="logo-layer" height="600px" width="800px">
+      </canvas>
+      <canvas id="display-layer" height="600px" width="800px">
+      </canvas>
+      <canvas id="boxes-layer" height="600px" width="800px">
+      </canvas>
+      <video id="main-player" height="600px" width="800px" style="display: none;" controls autoplay></video>
+    </div>
+  </div>
+
+  <div id="control-area">
+
+    <div>
+      <div class="count-box" id="deploy-box">0</div>
+      <label for="deploy-box">Deployed</label>
+      <div class="count-box" id="return-box">0</div>
+      <label for="return-box">Returned</label>
+      <!--<div class="count-box" id="crash-box">0</div>
+      <label for="crash-box">Crashed</label>-->
+      <div class="count-box" id="expire-box">0</div>
+      <label for="expire-box">Expired</label>
+    </div>
+
+    <div class="loading-bar" id="download-bar">
+      <div class="loading-label" id="download-label"></div>
+      <div class="loading-progress" id="download-progress"></div>
+    </div>
+
+    <form id="file-form">
+      <p>Upload an image or video file by dragging and dropping onto the region above, or by using the file dialog below.</p>
+      <input type="file" id="file-input" multiple="multiple" />
+      <label class="button" for="file-input">Select Files</label>
+      <!--<label class="button-off" id="file-input-off">Select Files</label>-->
+      <!--<label class="button" id="live-snap">Start Stream</label>-->
+      <label class="button" id="stop-button">Stop Computing</label>
+      <!--<label class="button-off" id="stop-button-off">Stop Computing</label>-->
+    </form>
+
+    <form id="control-form">
+
+      <fieldset id="env_fieldset">
+
+        <legend>Environment</legend>
+
+        <input type="radio" name="environment" value="scheduler" id="env_scheduler" checked>
+        <label for="env_scheduler">DCP Scheduler</label>
+
+        <input type="radio" name="environment" value="browser" id="env_browser">
+        <label for="env_browser">In-Browser</label><br/>
+
+      </fieldset>
+
+      <fieldset>
+
+        <legend>Architecture</legend>
+
+        <input type="radio" name="architecture" value="prestriate" id="arc_prestriate" checked>
+        <label for="arc_prestriate">Prestriate (High Speed)</label><br/>
+
+        <input type="radio" name="architecture" value="striate" id="arc_striate">
+        <label for="arc_striate">Striate (High Accuracy)</label>
+
+      </fieldset>
+
+      <fieldset>
+
+        <legend>Categories to Identify</legend>
+
+        <input type="checkbox" name="categories" value="person" id="cat_persons" checked>
+        <label for="obj_people">People</label><br/>
+
+        <input type="checkbox" name="categories" value="vehicle" id="cat_vehicles" checked>
+        <label for="obj_vehicles">Vehicles</label><br/>
+
+        <input type="checkbox" name="categories" value="animal" id="cat_animals">
+        <label for="obj_animals">Animals</label><br/>
+
+        <input type="checkbox" name="categories" value="object" id="cat_objects">
+        <label for="obj_objects">Objects</label><br/>
+
+      </fieldset>
+
+      <fieldset>
+
+        <legend>Compute Configuration</legend>
+
+        <label for="env_slices">Slices Per Batch</label><br />
+        <input type="range" min="1" max="5" step="1" value="5" class="slider" id="env_slices" oninput="env_slices_output.value = env_slices.value">
+        <output id="env_slices_output">5</output><br />
+
+        <label for="env_timeout">Max Minutes Per Slice</label><br />
+        <input type="range" min="1" max="30" step="1" value="5" class="slider" id="env_timeout" oninput="env_timeout_output.value = env_timeout.value">
+        <output id="env_timeout_output">5</output><br />
+
+        <label for="env_framerate">Video Frames Per Minute</label><br />
+        <input type="range" min="10" max="60" step="5" value="30" class="slider" id="env_framerate" oninput="env_framerate_output.value = env_framerate.value">
+        <output id="env_framerate_output">30</output><br />
+
+      </fieldset>
+
+    </form>
+  </div>
+</div>
+
+</body>
+<script type="text/javascript" src="bundle.js"></script>
+</html>
