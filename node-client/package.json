@@ -9,8 +9,14 @@
   "author": "Arnab Sagar",
   "license": "ISC",
   "dependencies": {
+    "@tensorflow/tfjs-node": "^3.18.0",
     "client": "0.0.1",
-    "dcp-client": "^4.2.5",
-    "dcp-worker": "^3.2.5"
+    "dcp-client": "^4.2.7",
+    "dcp-worker": "^3.2.7",
+    "get-pixels": "^3.3.3",
+    "npm-install-peers": "^1.2.2"
+  },
+  "devDependencies": {
+    "save-pixels": "^2.3.6"
   }
 }

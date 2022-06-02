@@ -1,9 +1,9 @@
 const SCHEDULER_URL = new URL('https://scheduler.distributed.computer');
 const fs = require("fs");
-const ffmpeg = require('ffmpeg');
+// const ffmpeg = require('ffmpeg');
 const getPixels = require("get-pixels")
 var savePixels = require("save-pixels")
-const { spawn } = require('child_process');
+// const { spawn } = require('child_process');
 
 
 function convertFrameToPixels(myBuffer){ 
@@ -31,63 +31,60 @@ async function getPixelData(path){
 }
 
 
-function createVideo(pathToFrames){
+// function createVideo(pathToFrames){
 
-    const ls = spawn('ffmpeg', ['-i', `${pathToFrames}/output_%d.jpg`, '-vcodec', 'mpeg4', 'final.mp4']);
+//     const ls = spawn('ffmpeg', ['-i', `${pathToFrames}/output_%d.jpg`, '-vcodec', 'mpeg4', 'final.mp4']);
     
-    ls.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
-    });
+//     ls.stdout.on('data', (data) => {
+//       console.log(`stdout: ${data}`);
+//     });
     
-    ls.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-    });
+//     ls.stderr.on('data', (data) => {
+//       console.error(`stderr: ${data}`);
+//     });
     
-    ls.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
-    });
+//     ls.on('close', (code) => {
+//       console.log(`child process exited with code ${code}`);
+//     });
     
-}
+// }
 
+// function createFrames(pathToVideo){
 
-
-
-function createFrames(pathToVideo){
-
-    return new Promise((resolve,reject)=>{
-        try {
-            var process = new ffmpeg(pathToVideo);
-            process.then(function (video) {
-                video.fnExtractFrameToJPG('./frames', {
-                    every_n_frames : 1,
-                    file_name : `%s_frame`
-                }, function (error, files) {
-                    if (!error){
-                        console.log('Frames saved');
-                        resolve()
-                    }
-                    else{
-                        console.log('Error! Frames not saved.\n' + error);
-                        reject()
-                    }
-                });
-            }, function (err) {
-                console.log('Error: ' + err);
-                reject()
-            });
-        } catch (e) {
-            console.log(e.code);
-            console.log(e.msg);
-            reject()
-        }
+//     return new Promise((resolve,reject)=>{
+//         try {
+//             var process = new ffmpeg(pathToVideo);
+//             process.then(function (video) {
+//                 video.fnExtractFrameToJPG('./frames', {
+//                     every_n_frames : 1,
+//                     file_name : `%s_frame`
+//                 }, function (error, files) {
+//                     if (!error){
+//                         console.log('Frames saved');
+//                         resolve()
+//                     }
+//                     else{
+//                         console.log('Error! Frames not saved.\n' + error);
+//                         reject()
+//                     }
+//                 });
+//             }, function (err) {
+//                 console.log('Error: ' + err);
+//                 reject()
+//             });
+//         } catch (e) {
+//             console.log(e.code);
+//             console.log(e.msg);
+//             reject()
+//         }
  
-    });
+//     });
 
-}
+// }
 
 function workFunction(pixelData){
     
-    // progress();
+    progress();
     
     for(var i = 0; i<pixelData.length; i=i+4){
 
@@ -106,16 +103,88 @@ function workFunction(pixelData){
 }
 
 
+async function work (imageData)
+{
+    console.log("before imports");
+   try {
+
+    tf = require('tfjs');
+    return "success";
+   }catch(err){
+        return err.toString()
+    }
+
+//      ais = require('aisfastquant.js');
+//      progress(0);
+     
+//      console.log("after improts");
+//      let myTimer = setInterval(function(){
+//        progress();
+//      }, 1000);
+ 
+//      let myPath = 'https://aisight.ca/prestriate/quantized/model.json';
+//      let myData = ais.urlMap[myPath];
+//      let myString = await atob(myData);
+//      let myObject = await JSON.parse(myString);
+//      let myFiles = [];
+//      let myLength = myObject.weightsManifest[0].paths.length;
+//      for (i = 0; i < myLength; i++) {
+//        let thisName = 'group1-shard' + (i+1) + 'of' + myLength + '.bin';
+//        let thisPath = 'https://aisight.ca/prestriate/quantized/' + thisName;
+//        let thisData = ais.urlMap[thisPath];
+//        let thisString = atob(thisData);
+//        let thisArray = new Uint8Array(thisString.length);
+//        for (let i = 0; i < thisString.length; i++) {
+//          thisArray[i] = thisString.charCodeAt(i);
+//        }
+//        let thisFile = new File([thisArray.buffer], thisName, {type: 'application/octet-stream'});
+//        myFiles.push(thisFile);
+//      }
+//      let myBlob = new Blob([myString], {type: 'application/json'});
+//      let myModel = await ais.loadModel(null, myBlob, myFiles);
+     
+     
+//      progress(0.25);
+//      //convert pixel string into array, remove alpha channel, set input size
+//      let thisImage = JSON.parse('[' + imageData + ']');
+//      thisImage = thisImage.filter((e, i) => (i + 1) % 4); // thisImage = thisImage.filter((myValue, myIndex) => myIndex % 4 == 0);
+//      const imageWidth = (thisImage.length / 3) ** (1/2);
+//      progress(0.5);
+ 
+     
+//      //convert pixel array into properly configured tensor
+//      let imageTensor = await tf.tidy(() => {
+//        let myTensor = tf.tensor(thisImage, [imageWidth, imageWidth, 3]);
+//        return myTensor.expandDims(0).toFloat().div(tf.scalar(255));
+//      });
+//      progress(0.75);
+ 
+ 
+//      //pass pixel array tensor to model for detection 
+//      let thisPrediction = await ais.detectFromTensor(myModel, imageTensor);
+//      imageTensor.dispose();
+//      clearInterval(myTimer);
+//      progress(1);
+//      return thisPrediction;
+//     } catch(e) {
+//         let errorString = 'Worker Crashed: ' + e;
+//         return errorString;
+//    }
+
+}
+
+
+
 async function main(){    
 
-    let pathToVideo = "testvid1.mp4"
+    // let pathToVideo = "testvid1.mp4"
     let pathToFrames = "./frames"
     let pathToConvertedFrames = "./outputSet"
     let framesObjects = [];         
     let framesPixelsArray = []
 
     /* INPUT SET */  
-    await createFrames(pathToVideo)                 //Split the video into frames
+    // await createFrames(pathToVideo)                 //Split the video into frames
 
     let frames = fs.readdirSync(pathToFrames)       //Read list of frames and sort them in ascending order
     frames.sort(function(a, b){
@@ -131,40 +200,51 @@ async function main(){
         framesPixelsArray.push(new Uint8Array(element.data))
     });
 
-    // framesPixelsArray.forEach(element => {
-    //     console.log(element);
-    // });
+    framesPixelsArray.forEach(element => {
+        console.log(element);
+    });
 
 
     /*DCP COMPUTE*/ 
-    // const compute = require('dcp/compute');
-    // const job = compute.for(framesPixelsArray, workFunction); 
+    const compute = require('dcp/compute');
+    const job = compute.for(framesPixelsArray, work); 
 
-    // job.on('accepted', () => {
-    //     console.log(` - Job accepted by scheduler, waiting for results`);
-    //     console.log(` - Job has id ${job.id}`);
-    //     startTime = Date.now();
-    // });
+    job.on('accepted', () => {
+        console.log(` - Job accepted by scheduler, waiting for results`);
+        console.log(` - Job has id ${job.id}`);
+    });
 
-    // job.on('readystatechange', (arg) => {
-    //     console.log(`new ready state: ${arg}`);
-    // });
+    job.on('readystatechange', (arg) => {
+        console.log(`new ready state: ${arg}`);
+    });
 
-    // job.on('result', (ev) => {
-    //     console.log(
-    //         ` - Received result for slice ${ev.sliceNumber} at ${Math.round((Date.now() - startTime) / 100) / 10
-    //         }s`,
-    //     );
-    // });
+    job.on('console', (arg) =>{
+        console.log(arg.message);
+    });
+
+    job.on('status', (arg) =>{
+        console.log(arg);
+    })
+
+    job.on('result', (ev) => {
+        console.log(
+            ` - Received result for slice ${ev.sliceNumber}`
+        );
+    });
   
-    // job.public.name = 'Arnab\'s intern project, nodejs ';
+    job.public.name = 'Arnab\'s intern project, nodejs ';
+    job.computeGroups = [{'joinKey': 'wyld-stallyns', 'joinSecret': 'QmUgZXhjZWxsZW50IHRvIGVhY2ggb3RoZXIK'}]
+    job.requires('tfjs');
+    job.requires('aisfastquant.js');
 
     // let resultSet = await job.localExec(); //for executing the job locally OR
-    // let resultSet = await job.exec(0.001); //for executing the job on DCP
+    let resultSet = await job.exec(); //for executing the job on DCP
     
     // // /* PROCESSING OF RESULTS */ 
-    // resultSet = Array.from(resultSet);
-    // console.log(resultSet);
+    resultSet = Array.from(resultSet);
+    console.log(resultSet);
+
+
     // let counter1 = 0
     // resultSet.forEach(function (frame) {
     //     framesObjects[counter1].data = Array.from(frame)
@@ -177,27 +257,27 @@ async function main(){
     //     console.log(new Uint8Array(element.data) );
     // });
 
-    /* SOLUTION FOR NON-DCP RESULTS*/
-    for (let frame of framesPixelsArray) {
-        frame = workFunction(frame);
-    }
-    for (var i = 0; i < framesObjects.length; i++) {    //Copying resulting pixel data of frames back to the list of object data of frames
-        framesObjects[i].data = framesPixelsArray[i];
-    }
+    /* SOLUTION FOR NON-DCP RESULTS */
+    // for (let frame of framesPixelsArray) {
+    //     frame = workFunction(frame);
+    // }
+    // for (var i = 0; i < framesObjects.length; i++) {    //Copying resulting pixel data of frames back to the list of object data of frames
+    //     framesObjects[i].data = framesPixelsArray[i];
+    // }
 
     
     /* SAVING CONVERTED FRAMES' OBJECTS TO FRAMES' IMAGES */
-    let counter = 0;    
-    for(const frame of framesObjects){      //Loop to save each frame's object data as an image
-        counter++;
-        // console.log(frame);
-        let bufferOut = await savePixels(frame, 'jpg'); // ndarray -> Uint8Array
-        fs.writeFileSync(`./outputSet/output_${counter}.jpg`, bufferOut._obj);
-    }
+    // let counter = 0;    
+    // for(const frame of framesObjects){      //Loop to save each frame's object data as an image
+    //     counter++;
+    //     // console.log(frame);
+    //     let bufferOut = await savePixels(frame, 'jpg'); // ndarray -> Uint8Array
+    //     fs.writeFileSync(`./outputSet/output_${counter}.jpg`, bufferOut._obj);
+    // }
 
 
     /* Stiching resulting frames to a video */
-    createVideo(pathToConvertedFrames);
+    // createVideo(pathToConvertedFrames);
 
 }
 
