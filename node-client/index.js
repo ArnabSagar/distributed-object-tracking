@@ -100,12 +100,12 @@ async function work(thisImage)
     const tf = require("tfjs");
     const ais = require('aisfastquant');
     progress(0);
-    console.log("here1");
+    // console.log("here1");
     let myTimer = setInterval(function()
     {
       progress();
     }, 1000);
-    console.log("here2");
+    // console.log("here2");
     let myPath = 'https://aisight.ca/prestriate/quantized/model.json';
     let myData = ais.urlMap[myPath];
     let myString = await atob(myData);
@@ -125,19 +125,19 @@ async function work(thisImage)
       let thisFile = new File([thisArray.buffer], thisName, {type: 'application/octet-stream'});
       myFiles.push(thisFile);
     }
-    console.log("here4");
+    // console.log("here4");
     let myBlob = new Blob([myString], {type: 'application/json'});
     let myModel = await ais.loadModel(null, myBlob, myFiles);
-    console.log("here5");
+    // console.log("here5");
     progress(0.25);
     //convert pixel string into array, remove alpha channel, set input size
     // let thisImage = JSON.parse('[' + imageData + ']');
     // thisImage = thisImage.filter((e, i) => (i + 1) % 4); // thisImage = thisImage.filter((myValue, myIndex) => myIndex % 4 == 0);
     const imageWidth = (thisImage.length / 3) ** (1/2);
-    console.log(imageWidth);
+    // console.log(imageWidth);
     progress(0.5);
 
-    console.log("here6");
+    // console.log("here6");
     //convert pixel array into properly configured tensor
     let imageTensor = await tf.tidy(() => {
       let myTensor = tf.tensor(thisImage, [imageWidth, imageWidth, 3]);
@@ -145,7 +145,7 @@ async function work(thisImage)
     });
     progress(0.75);
 
-    console.log("here7");
+    // console.log("here7");
     //pass pixel array tensor to model for detection
     let thisPrediction = await ais.detectFromTensor(myModel, imageTensor);
     imageTensor.dispose();
@@ -158,7 +158,7 @@ async function work(thisImage)
       
       // console.log(element);
       if(element.category === 'person' || element.object === 'person'){
-        console.log("here");
+        // console.log("here");
         
         var x_coord = element.box[0]*0.4375; 
         var y_coord = element.box[1]*0.4375;
@@ -167,14 +167,18 @@ async function work(thisImage)
 
         var x_center = x_coord+(boxWidth/2);
         var y_center = y_coord+(boxHeight/2);
-
+        
         var z_pixel = (3*imageWidth*parseInt(String(y_center).split('.')[0]))+(3*parseInt(String(x_center).split('.')[0]))
         
         var z_intensity = depthMap[z_pixel+1]
 
-        console.log(z_intensity);
+        // console.log(z_intensity);
 
-        centre_coords = [x_center, y_center];
+        var z = z_intensity;
+        var x = x_center * 0.0666;
+        var y = y_center * 0.0666
+
+        centre_coords = [x, y, z];
       }
 
     });
@@ -218,7 +222,7 @@ async function main() {
   const cleanedFrames = []
 
   framesPixelsArray.forEach((element) => {
-    console.log(element);
+    // console.log(element);
     let thisImage = JSON.parse('[' + element + ']');
     thisImage = thisImage.filter((e, i) => (i + 1) % 4); // thisImage = thisImage.filter((myValue, myIndex) => myIndex % 4 == 0);
     console.log(thisImage);
@@ -231,7 +235,7 @@ async function main() {
 
   /*DCP COMPUTE*/
   const compute = require("dcp/compute");
-  const job = compute.for([cleanedFrames], work);
+  const job = compute.for([[cleanedFrames[0], cleanedFrames[2]],[cleanedFrames[1], cleanedFrames[3]]], work);
   const sliceOrder = [];
 
   job.on("accepted", () => {
@@ -247,9 +251,9 @@ async function main() {
     console.log(arg.message);
   });
 
-  job.on("status", (arg) => {
-    console.log(arg);
-  });
+  // job.on("status", (arg) => {
+  //   console.log(arg);
+  // });
 
   job.on("result", (ev) => {
     sliceOrder.push(ev.sliceNumber);
@@ -273,6 +277,13 @@ async function main() {
   });
 
 
+  // console.log((resultSet[0][0] - resultSet[1][0])**2 + ((resultSet[0][1]-resultSet[1][1])**2) + ((resultSet[0][2]-resultSet[1][2])**2));
+  // console.log( ((resultSet[0][1]-resultSet[1][1])**2));
+  // console.log(((resultSet[0][2]-resultSet[1][2])**2));
+
+  // Distance between both points  
+  var dist = (((resultSet[0][0] - resultSet[1][0])**2) + ((resultSet[0][1]-resultSet[1][1])**2) + ((resultSet[0][2]-resultSet[1][2])**2))**(1/2);
+  console.log('Distance between initial position and final position: ' + String(dist));
   
   // const parsedResults = Array.from(resultSet).map((slice) => JSON.parse(slice));
 

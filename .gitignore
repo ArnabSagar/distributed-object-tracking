@@ -1,4 +1,4 @@
 /nodemodules
 /node-client/node_modules
 ._*
-
+/node-client/frames
