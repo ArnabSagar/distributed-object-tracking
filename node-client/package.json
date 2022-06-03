@@ -12,7 +12,9 @@
     "@tensorflow/tfjs-node": "^3.18.0",
     "client": "0.0.1",
     "dcp-client": "^4.2.7",
+    "dcp-util": "^2.2.7",
     "dcp-worker": "^3.2.7",
+    "ffmpeg": "0.0.4",
     "get-pixels": "^3.3.3",
     "npm-install-peers": "^1.2.2"
   },
